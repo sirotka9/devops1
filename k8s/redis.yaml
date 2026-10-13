@@ -15,7 +15,6 @@ metadata:
   name: redis
   namespace: devops
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -35,8 +34,6 @@ spec:
           envFrom:
             - secretRef:
                 name: redis-secret
-          ports:
-            - containerPort: 6379
           volumeMounts:
             - name: data
               mountPath: /data
@@ -55,4 +52,3 @@ spec:
     app: redis
   ports:
     - port: 6379
-      targetPort: 6379
