@@ -1,6 +1,10 @@
 .git
 .github
 .env
+.env.k8s
+k8s
+monitoring
+kind.yaml
 .venv
 __pycache__
 .DS_Store
