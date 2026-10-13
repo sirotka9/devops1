@@ -2,17 +2,47 @@ import os
 from uuid import uuid4
 
 import redis
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
 
+http_requests = Counter("http_requests_total", "Количество запросов к API")
+http_errors = Counter("http_errors_total", "Количество ответов API с кодом 4xx или 5xx")
+
 db = redis.Redis(
     host=os.getenv("REDIS_HOST", "localhost"),
     port=int(os.getenv("REDIS_PORT", "6379")),
     decode_responses=True,
+    password=os.getenv("REDIS_PASSWORD") or None,
+    socket_connect_timeout=2,
+    socket_timeout=2,
 )
+
+
+@app.after_request
+def count_requests(response):
+    if request.path.startswith("/api/"):
+        http_requests.inc()
+        if response.status_code >= 400:
+            http_errors.inc()
+    return response
+
+
+@app.get("/health")
+def health():
+    try:
+        db.ping()
+    except redis.RedisError:
+        return {"status": "error", "message": "Redis недоступен"}, 503
+    return {"status": "ok"}
+
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), content_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/")
