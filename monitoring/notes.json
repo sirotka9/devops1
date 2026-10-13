@@ -1,0 +1,30 @@
+{
+  "uid": "notes",
+  "title": "API заметок",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-15m", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Запросы к API",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 6},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "sum(http_requests_total)", "instant": true}
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Ошибки API (4xx и 5xx)",
+      "type": "stat",
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 6},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "sum(http_errors_total)", "instant": true}
+      ]
+    }
+  ]
+}
